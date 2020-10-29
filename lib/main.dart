@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/Screens/welcome_screen.dart';
+import 'file:///C:/Users/L440/Desktop/Teme/flutter_chat/lib/Screens/welcome_screen/welcome_screen.dart';
 import 'package:flutter_chat/constants.dart';
 
 void main() {

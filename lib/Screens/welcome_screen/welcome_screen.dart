@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/Screens/components/body.dart';
+import 'file:///C:/Users/L440/Desktop/Teme/flutter_chat/lib/Screens/welcome_screen/components/body.dart';
 
 class WelcomeScreen extends StatelessWidget{
   @override

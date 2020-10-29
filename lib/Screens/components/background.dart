@@ -15,7 +15,19 @@ class Background extends StatelessWidget {
     return Container(
       height: size.height,
       width: double.infinity,
-      color: Colors.white54,
+      //color: Colors.white54,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color.fromARGB(255,  115,194,251),
+            Colors.teal,
+
+
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        )
+      ),
       child: Stack(
 
         alignment: Alignment.center,
