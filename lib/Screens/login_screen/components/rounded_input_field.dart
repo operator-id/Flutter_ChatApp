@@ -3,31 +3,39 @@ import 'package:flutter_chat/Screens/login_screen/components/text_field_containe
 
 import '../../../constants.dart';
 
-class RoundedInputField extends StatelessWidget {
+class RoundedInputField extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
+  final FormFieldValidator<String> validator;
   final IconData icon;
   final ValueChanged<String> onChanged;
+
   const RoundedInputField({
     Key key,
     this.controller,
+    this.validator,
     this.hintText,
     this.icon = Icons.person,
     this.onChanged,
   }) : super(key: key);
+  @override
+  _RoundedInputFieldState createState() => _RoundedInputFieldState();
+}
+  class _RoundedInputFieldState extends State<RoundedInputField>{
 
   @override
   Widget build(BuildContext context) {
     return TextFieldContainer(
-      child: TextField(
-        controller: controller,
-        onChanged: onChanged,
+      child: TextFormField(
+        controller: widget.controller,
+        validator: widget.validator,
+        onChanged: widget.onChanged,
         decoration: InputDecoration(
           icon: Icon(
-            icon,
+            widget.icon,
             color: kPrimaryColor,
           ),
-          hintText: hintText,
+          hintText: widget.hintText,
           border: InputBorder.none,
         ),
       ),
