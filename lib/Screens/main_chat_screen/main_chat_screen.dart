@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/Screens/components/background.dart';
+import 'package:flutter_chat/constants.dart';
 
 class MainChatScreen extends StatefulWidget {
-  final String username;
-  MainChatScreen({Key key, this.username}) : super (key: key);
+  final String channelName;
+  MainChatScreen({Key key, this.channelName}) : super (key: key);
   @override
   _MainChatState createState() => _MainChatState();
 }
@@ -22,8 +23,10 @@ class MainChatScreen extends StatefulWidget {
              mainAxisAlignment: MainAxisAlignment.center,
              children: <Widget>[
                Text(
-                   "Hello, " + widget.username,
 
+                   "Welcome to " + widget.channelName,
+
+    style: Theme.of(context).textTheme.bodyText1,
                )
              ],
            ),

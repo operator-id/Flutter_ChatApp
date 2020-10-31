@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/Screens/channel_list_screen/channel_list_screen.dart';
 import 'package:flutter_chat/Screens/components/background.dart';
 import 'package:flutter_chat/Screens/components/rounded_button.dart';
 import 'package:flutter_chat/Screens/login_screen/components/rounded_input_field.dart';
 import 'package:flutter_chat/Screens/login_screen/components/rounded_password_field.dart';
-import 'package:flutter_chat/Screens/main_chat_screen/main_chat_screen.dart';
 import 'package:flutter_chat/Screens/signup_screen/signup_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_chat/api.dart' as api;
@@ -22,6 +22,13 @@ class _LoginBodyState extends State<LoginBody> {
   final _formKey = GlobalKey<FormState>();
   String _status;
 
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
   void continueToChat(http.Response response) {
     if (response.statusCode == 200) {
       print(response.body);
@@ -30,7 +37,7 @@ class _LoginBodyState extends State<LoginBody> {
         context,
         MaterialPageRoute(
           builder: (context) {
-            return MainChatScreen(username: usernameController.text);
+            return ChannelListScreen();
           },
         ),
       );
