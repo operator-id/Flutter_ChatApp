@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/Screens/channel_list_screen/channel_list_screen.dart';
@@ -21,7 +23,7 @@ class _LoginBodyState extends State<LoginBody> {
   final passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String _status;
-
+  String _token;
 
   @override
   void dispose() {
@@ -29,23 +31,17 @@ class _LoginBodyState extends State<LoginBody> {
     passwordController.dispose();
     super.dispose();
   }
+
   void continueToChat(http.Response response) {
     if (response.statusCode == 200) {
-      print(response.body);
+      print(jsonDecode(response.body));
       print(response.statusCode);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            return ChannelListScreen();
-          },
-        ),
-      );
+      Navigator.pushNamedAndRemoveUntil (
+          context, ChannelListScreen.routeName, (_) => false, arguments: ChannelScreenArguments(usernameController.text, jsonDecode(response.body)),);
     } else {
       print('LOGIN unsuccessful');
       if (response != null) print(response.body);
       setState(() {
-
         _status = 'TRY THAT...AGAIN!';
       });
     }
@@ -62,8 +58,8 @@ class _LoginBodyState extends State<LoginBody> {
           children: <Widget>[
             Text(
               "Login",
-
-          style:   Theme.of(context).textTheme.headline3,),
+              style: Theme.of(context).textTheme.headline3,
+            ),
             SizedBox(
               height: size.height * .075,
             ),
@@ -102,13 +98,15 @@ class _LoginBodyState extends State<LoginBody> {
             SizedBox(
               height: size.height * .0125,
             ),
-            Text((_status == null) ?  "" :  _status,
-            style:   Theme.of(context).textTheme.bodyText2,),
+            Text(
+              (_status == null) ? "" : _status,
+              style: Theme.of(context).textTheme.bodyText2,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  "Don't have an account?",
+                  "Don't have an account? ",
                   style: Theme.of(context).textTheme.bodyText2,
                 ),
                 GestureDetector(

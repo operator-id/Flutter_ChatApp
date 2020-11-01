@@ -36,6 +36,7 @@ class RoundedPasswordField extends StatelessWidget {
             suffixIcon: Icon(
               Icons.visibility,
               color: kPrimaryColor,
+
             ),
             border: InputBorder.none,
           ),

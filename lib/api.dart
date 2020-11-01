@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -30,10 +31,41 @@ Future registerUser(String username, String password) async {
       'password': password,
     }),
   );
-    print(response.body);
+  print(jsonDecode(response.body));
   print(response.headers);
   print(response.statusCode);
-    return response.statusCode;
-  }
+  return response.statusCode;
+}
 
+Future getChannels(String token) async {
+  String getChannelsUrl = url + 'channels';
+  final response = await http.get(getChannelsUrl,
+    headers:  <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': "Bearer $token",
+    },
+
+  );
+
+
+  print('Token check in getChannels: ' + "Bearer $token");
+
+  print(true==true);
+
+  //print(response.headers);
+  //print(response.statusCode);
+  return response;
+}
+Future<http.Response> addChannel(String channelName) async {
+  String thisUrl = url + 'channel';
+  http.Response response = await http.post(thisUrl,
+    headers:  <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'name': channelName,
+    }),
+  );
+  return response;
+}
 
