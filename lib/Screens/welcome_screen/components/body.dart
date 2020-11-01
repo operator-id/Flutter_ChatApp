@@ -13,14 +13,17 @@ class Body extends StatelessWidget {
     return Background(
       child: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Text(
-              "Log in",
-              style: TextStyle(fontWeight: FontWeight.bold),
+            Align(
+              alignment: Alignment.topCenter,
+              child: Text(
+                "Borodin Chat",
+                style: Theme.of(context).textTheme.headline1,
+              ),
             ),
             SizedBox(
-              height: size.height * .025,
+              height: size.height * .1,
             ),
             RoundedButton(
               text: "Login",
@@ -39,7 +42,7 @@ class Body extends StatelessWidget {
               height: size.height * .025,
             ),
             RoundedButton(
-              text: "Register",
+              text: "Sign Up",
               color: kPrimaryLightColor,
               textColor: Colors.black,
               press: () {

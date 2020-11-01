@@ -38,8 +38,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
-                "SIGN UP",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                "Sign Up",
+                style: Theme.of(context).textTheme.headline3,
+              ),
+              SizedBox(
+                height: size.height * .075,
               ),
               RoundedInputField(
                 hintText: "Your username",
@@ -79,12 +82,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 height: size.height * .025,
               ),
               RoundedButton(
-                  text: "SIGN UP",
+                  text: "Sign Up",
                   press: () {
                     print('username: ' + usernameController.text);
                     if (_formKey.currentState.validate()) {
-
-                      api.registerUser(usernameController.text, firstPasswordController.text) ;
+                      api.registerUser(usernameController.text,
+                          firstPasswordController.text);
 
                       Navigator.push(
                         context,

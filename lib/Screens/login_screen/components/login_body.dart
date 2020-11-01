@@ -61,8 +61,11 @@ class _LoginBodyState extends State<LoginBody> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              "LOGIN",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              "Login",
+
+          style:   Theme.of(context).textTheme.headline3,),
+            SizedBox(
+              height: size.height * .075,
             ),
             RoundedInputField(
               hintText: "Username",
@@ -84,7 +87,7 @@ class _LoginBodyState extends State<LoginBody> {
               height: size.height * .025,
             ),
             RoundedButton(
-              text: "LOGIN",
+              text: "Login",
               press: () {
                 {
                   if (_formKey.currentState.validate()) {
@@ -99,13 +102,14 @@ class _LoginBodyState extends State<LoginBody> {
             SizedBox(
               height: size.height * .0125,
             ),
-            (_status == null) ? Text("") : Text(_status),
+            Text((_status == null) ?  "" :  _status,
+            style:   Theme.of(context).textTheme.bodyText2,),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
                   "Don't have an account?",
-                  //style: TextStyle(color: kPrimaryColor),
+                  style: Theme.of(context).textTheme.bodyText2,
                 ),
                 GestureDetector(
                   onTap: () {
