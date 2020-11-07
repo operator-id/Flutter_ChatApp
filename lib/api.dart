@@ -21,9 +21,9 @@ Future loginUser(String username, String password) async {
   }
 
 
-Future registerUser(String username, String password) async {
+Future<http.Response> registerUser(String username, String password) async {
   String registerUrl = url + 'register';
-  final response = await http.post(registerUrl,
+  http.Response response = await http.post(registerUrl,
     headers:  <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -32,10 +32,9 @@ Future registerUser(String username, String password) async {
       'password': password,
     }),
   );
-  print(jsonDecode(response.body));
-  print(response.headers);
-  print(response.statusCode);
-  return response.statusCode;
+  print((response.body));
+  print('Register attempt status code: ${response.statusCode}');
+  return response;
 }
 
 Future<http.Response> addChannel(String channelName) async {

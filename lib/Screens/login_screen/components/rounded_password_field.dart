@@ -4,7 +4,7 @@ import 'package:flutter_chat/Screens/login_screen/components/text_field_containe
 import '../../../constants.dart';
 
 
-class RoundedPasswordField extends StatelessWidget {
+class RoundedPasswordField extends StatefulWidget {
 
   final String hintText;
   final TextEditingController controller;
@@ -21,23 +21,31 @@ class RoundedPasswordField extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _RoundedPasswordFieldState createState() => _RoundedPasswordFieldState();
+}
+
+class _RoundedPasswordFieldState extends State<RoundedPasswordField> {
+
+  bool _isObscure = true;
+  @override
   Widget build(BuildContext context) {
     return TextFieldContainer(
         child: TextFormField(
-          validator: validator,
-          controller: controller,
-          obscureText: true,
+          validator: widget.validator,
+          controller: widget.controller,
+          obscureText: _isObscure,
           decoration: InputDecoration(
-            hintText: hintText,
+            hintText: widget.hintText,
             icon: Icon(
-              icon,
+              widget.icon,
               color: kPrimaryColor,
             ),
-            suffixIcon: Icon(
-              Icons.visibility,
-              color: kPrimaryColor,
+            suffixIcon: IconButton(icon: Icon(Icons.visibility), onPressed: () {
+              setState(() {
+                _isObscure = !_isObscure;
+              });
+            } , color: kPrimaryColor,),
 
-            ),
             border: InputBorder.none,
           ),
         ));

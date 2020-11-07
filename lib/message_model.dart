@@ -1,7 +1,7 @@
 import 'package:flutter_chat/user_model.dart';
 
 class Message{
-  final User sender;
+  final String sender;
   final String messageText;
   final String timeSent;
 
@@ -10,4 +10,13 @@ class Message{
     this.messageText,
     this.timeSent,
 });
+
+  factory Message.fromJson(Map<String, dynamic> json) {
+    return Message(
+      //TODO
+      sender: json['id'],
+      messageText: json['name'],
+      timeSent: json[''],
+    );
+  }
 }

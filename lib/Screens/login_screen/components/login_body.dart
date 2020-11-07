@@ -32,7 +32,8 @@ class _LoginBodyState extends State<LoginBody> {
     super.dispose();
   }
 
-  void continueToChat(http.Response response) {
+  void _checkCredentials(http.Response response) {
+    print('Checking login credentials...');
     if (response.statusCode == 200) {
       print(jsonDecode(response.body));
       print(response.statusCode);
@@ -84,13 +85,16 @@ class _LoginBodyState extends State<LoginBody> {
             ),
             RoundedButton(
               text: "Login",
-              press: () {
+              press: () async{
                 {
+
                   if (_formKey.currentState.validate()) {
                     var response = api.loginUser(
                         usernameController.text, passwordController.text);
+                    final http.Response status = await response;
+                    print('Login attempt status code ${status.statusCode}');
                     response.whenComplete(
-                        () => response.then((value) => continueToChat(value)));
+                        () => response.then((value) => _checkCredentials(value)));
                   }
                 }
               },

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/Screens/components/background.dart';
 import 'package:flutter_chat/Screens/components/rounded_button.dart';
-import 'package:flutter_chat/Screens/login_screen/components/login_body.dart';
 import 'package:flutter_chat/Screens/login_screen/components/rounded_input_field.dart';
 import 'package:flutter_chat/Screens/login_screen/components/rounded_password_field.dart';
-import 'package:flutter_chat/Screens/login_screen/components/rounded_input_field.dart';
 import 'package:flutter_chat/Screens/login_screen/login_screen.dart';
 import 'package:flutter_chat/api.dart' as api;
+import 'package:http/http.dart' as http;
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -18,6 +17,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final firstPasswordController = TextEditingController();
   final secondPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  String _warning = '';
 
   @override
   void dispose() {
@@ -80,27 +80,40 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               SizedBox(
                 height: size.height * .025,
+                child: Text(_warning),
               ),
               RoundedButton(
                   text: "Sign Up",
                   press: () {
                     print('username: ' + usernameController.text);
                     if (_formKey.currentState.validate()) {
-                      api.registerUser(usernameController.text,
+                      var response = api.registerUser(usernameController.text,
                           firstPasswordController.text);
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return LoginScreen();
-                          },
-                        ),
-                      );
+                      response.whenComplete(() => response.then(
+                          (value) => _checkIfRegistrationSuccessful(value)));
                     }
                   })
             ]),
       ),
     ));
+  }
+
+  _checkIfRegistrationSuccessful(http.Response response) {
+    if (response.statusCode == 200) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return LoginScreen();
+          },
+        ),
+      );
+    } else if (response.statusCode == 400) {
+      setState(() {
+        _warning = 'Username already taken';
+      });
+    } else {
+      print('Registration went wrong, status code: ${response.statusCode}');
+    }
   }
 }
