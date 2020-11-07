@@ -2,11 +2,15 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/Screens/components/rounded_button.dart';
 import 'package:flutter_chat/Screens/main_chat_screen/main_chat_screen.dart';
 import 'package:flutter_chat/app_bar.dart';
 import 'package:flutter_chat/api.dart' as api;
+import 'package:flutter_chat/channel_model.dart';
 import 'package:flutter_chat/constants.dart';
 import 'package:http/http.dart' as http;
+
+import '../../api.dart';
 
 class ChannelScreenArguments {
   final String username;
@@ -24,8 +28,6 @@ class ChannelListScreen extends StatefulWidget {
 }
 
 class _ChannelListScreenState extends State<ChannelListScreen> {
-  final List<String> entries = <String>['Channel A', 'Channel B', 'Channel C'];
-  final List<int> colorCodes = <int>[600, 500, 100];
   final addChannelController = TextEditingController();
   bool _isVisible = false;
   @override
@@ -34,17 +36,53 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
     super.dispose();
   }
 
-  _addChannel(String channelName){
-   var request =  api.addChannel(channelName);
-   request.whenComplete(() => request.then((value) =>    print('add channel response status ${value.statusCode} body: ${ value.body}')));
+  ListView _channelListView(data, String username) {
+
+
+        return ListView.builder(
+            itemCount: data.length,
+            itemBuilder: (context, index) {
+              {
+                return _tile(data[index].name, Icons.message, username);
+              }
+
+            });
 
   }
+
+  ListTile _tile(String title, IconData icon, String username) => ListTile(
+    onTap: (){
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return MainChatScreen(username: username , channelName: title,);
+          },
+        ),
+      );
+    },
+    tileColor: Colors.white,
+        title: Text(title,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 20,
+            )),
+        leading: Icon(
+          icon,
+          color: Colors.blue[500],
+        ),
+      );
+
+  _addChannel(String channelName) {
+    var request = api.addChannel(channelName);
+    request.whenComplete(() => request.then((value) => print(
+        'add channel response status ${value.statusCode} body: ${value.body}')));
+  }
+
   @override
   Widget build(BuildContext context) {
     final ChannelScreenArguments args =
         ModalRoute.of(context).settings.arguments;
-    api.getChannels(args.token);
-
 
     Size size = MediaQuery.of(context).size;
     return Scaffold(
@@ -55,44 +93,20 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
       body: Column(
         children: <Widget>[
           Expanded(
-            child: Container(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(8),
-                itemCount: entries.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Container(
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                      colors: [
-                        Color.fromRGBO(121, 194, 243, 1),
-                        Color.fromRGBO(255, 180, 239, 1),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      // background-image: linear-gradient( 114.2deg,  rgba(121,194,243,1) 22.6%, rgba(255,180,239,1) 67.7% );
-                    )),
-                    height: 50,
-                    child: ListTile(
-                      title: Text('${entries[index]}'),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return MainChatScreen(
-                                channelName: '${entries[index]}',
-                                username: args.username,
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
+              child: FutureBuilder<List<Channel>>(
+            future: fetchChannels(args.token),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+
+                List<Channel> data = snapshot.data;
+                print('Has data ${snapshot.data[0].name}');
+                return _channelListView(data, args.username);
+              } else if (snapshot.hasError) {
+                return Text("${snapshot.error}");
+              }
+              return CircularProgressIndicator();
+            },
+          )),
           AnimatedOpacity(
             duration: Duration(milliseconds: 500),
             opacity: _isVisible ? 1.0 : 0.0,
@@ -101,12 +115,16 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
               padding: EdgeInsets.symmetric(horizontal: 12),
               height: 60,
               decoration: kSecondaryGradient,
-              child: TextFormField(
-                controller: addChannelController,
-                decoration: InputDecoration(
-                  hintText: 'Add new channel...',
+              child: Row(children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: addChannelController,
+                    decoration: InputDecoration(
+                      hintText: 'Add new channel...',
+                    ),
+                  ),
                 ),
-              ),
+              ]),
             ),
           ),
         ],
@@ -118,11 +136,11 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
           // UI with the changes.
           setState(() {
             _isVisible = !_isVisible;
-            if(_isVisible) {
-              if (addChannelController.text != null) {
-                _addChannel(addChannelController.text);
-                addChannelController.clear();
-              }
+
+            if (addChannelController.text.trim().isNotEmpty) {
+              print('not empty');
+              _addChannel(addChannelController.text);
+              addChannelController.clear();
             }
           });
         },
