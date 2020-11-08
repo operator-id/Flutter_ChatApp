@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/Screens/components/background.dart';
+import 'package:flutter_chat/Screens/components/custom_circular_indicator.dart';
 import 'package:flutter_chat/app_bar.dart';
 import 'package:flutter_chat/constants.dart';
 import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../../message_model.dart';
 import '../../user_model.dart';
 
-const String ChannelURL = 'ws://172.104.202.219:8080/channel';
 
 class MainChatScreen extends StatefulWidget {
-  final channel = IOWebSocketChannel.connect(ChannelURL);
+  final WebSocketChannel channel;
+  final String id;
   final String channelName;
   final String username;
 
-  MainChatScreen({Key key, this.channelName, this.username}) : super(key: key);
+  MainChatScreen({Key key, this.channelName, this.username, @required this.channel, this.id}) : super(key: key);
   @override
   _MainChatState createState() => _MainChatState();
 }
@@ -96,7 +98,10 @@ class _MainChatState extends State<MainChatScreen> {
 
   @override
   void initState() {
+    print('room owner'' \nroom id ${widget.id}');
+    _sendMessage(widget.id);
     super.initState();
+
   }
 
   @override
@@ -132,7 +137,7 @@ class _MainChatState extends State<MainChatScreen> {
                               return _buildMessage(message, false);
                             });
                       } else {
-                        return CircularProgressIndicator();
+                        return CustomCircularIndicator();
                       }
                     },
                   ),

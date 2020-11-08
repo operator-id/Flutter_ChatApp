@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/Screens/channel_list_screen/rounded_list_element.dart';
+import 'package:flutter_chat/Screens/components/custom_circular_indicator.dart';
 import 'package:flutter_chat/Screens/components/rounded_button.dart';
 import 'package:flutter_chat/Screens/main_chat_screen/main_chat_screen.dart';
 import 'package:flutter_chat/app_bar.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_chat/api.dart' as api;
 import 'package:flutter_chat/channel_model.dart';
 import 'package:flutter_chat/constants.dart';
 import 'package:http/http.dart' as http;
+import 'package:web_socket_channel/io.dart';
 
 import '../../api.dart';
 
@@ -20,15 +22,16 @@ class ChannelScreenArguments {
 }
 
 class ChannelListScreen extends StatefulWidget {
-  final String username;
+
   static const routeName = '/channel';
-  ChannelListScreen({Key key, this.username}) : super(key: key);
+  ChannelListScreen({Key key,}) : super(key: key);
 
   @override
   _ChannelListScreenState createState() => _ChannelListScreenState();
 }
 
 class _ChannelListScreenState extends State<ChannelListScreen> {
+  String _username =''; //TODO init state
   final _addChannelController = TextEditingController();
   bool _isVisible = false;
   @override
@@ -40,7 +43,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
   _validate(String input) {
     if (input.trim().isNotEmpty) {
       print('input not empty, channel name: $input');
-      _addChannel(input);
+      _addChannel(input, _username);
       _addChannelController.clear();
     }
   }
@@ -53,7 +56,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
         padding: EdgeInsets.only(bottom: 30,),
         itemBuilder: (context, index) {
           {
-            return RoundedListElement(text: data[index].name, onTap: (){
+            return RoundedListElement(text: data[index].name, isOwner: (username == data[index].owner), onTap: (){
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -61,6 +64,8 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
                     return MainChatScreen(
                       username: username,
                       channelName: data[index].name,
+                      id:data[index].id,
+                      channel: IOWebSocketChannel.connect('ws://172.104.202.219:8080/room'),
                     );
                   },
                 ),
@@ -74,8 +79,8 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
   }
 
 
-  _addChannel(String channelName) {
-    var request = api.addChannel(channelName);
+  _addChannel(String channelName, String username) {
+    var request = api.addChannel(channelName, username);
     request.whenComplete(() => request.then((value) => print(
         'add channel response status ${value.statusCode} body: ${value.body}')));
   }
@@ -84,12 +89,16 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
   Widget build(BuildContext context) {
     final ChannelScreenArguments args =
         ModalRoute.of(context).settings.arguments;
+    setState(() {
+      print('setting username');
+      _username =  args.username;
+    });
 
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: ChatAppBar(
-        barTitle: 'Channels',
-        username: (widget.username == null) ? args.username : '_offline',
+        barTitle: 'Rooms',
+        username: (_username != null) ? args.username : '_offline',
       ),
       body: Column(
         children: <Widget>[
@@ -99,16 +108,17 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 List<Channel> data = snapshot.data;
-                print('Has data ${snapshot.data[0].name}');
+                print('Has data. Room name: ${snapshot.data[0].name}. Room owner ${snapshot.data[0].owner}. Room id ${snapshot.data[0].id}.');
                 return _channelListView(data, args.username);
               } else if (snapshot.hasError) {
                 return Text("${snapshot.error}");
               }
-              return CircularProgressIndicator();
+              return CustomCircularIndicator();
             },
           )),
           AnimatedOpacity(
             duration: Duration(milliseconds: 500),
+
             opacity: _isVisible ? 1.0 : 0.0,
             //opacity: .5,
             child: Container(
@@ -123,7 +133,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
                     },
                     controller: _addChannelController,
                     decoration: InputDecoration(
-                      hintText: 'Add new channel...',
+                      hintText: 'Create new room...',
                     ),
                   ),
                 ),
@@ -141,7 +151,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
             _isVisible = !_isVisible;
           });
         },
-        tooltip: 'Add channel',
+        tooltip: 'Create room',
         child: Icon(
           Icons.add_box,
           size: 50,

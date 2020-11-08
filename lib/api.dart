@@ -37,14 +37,16 @@ Future<http.Response> registerUser(String username, String password) async {
   return response;
 }
 
-Future<http.Response> addChannel(String channelName) async {
-  String thisUrl = url + 'channel';
+Future<http.Response> addChannel(String channelName, String username) async {
+  print('creating room ${channelName} with owner $username');
+  String thisUrl = url + 'room';
   http.Response response = await http.post(thisUrl,
     headers:  <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
     body: jsonEncode(<String, String>{
       'name': channelName,
+      'owner': username,
     }),
   );
   return response;
@@ -52,7 +54,7 @@ Future<http.Response> addChannel(String channelName) async {
 
 Future<List<Channel>> fetchChannels(String token) async {
 
-  String getChannelsUrl = url + 'channels';
+  String getChannelsUrl = url + 'rooms';
   final response = await http.get(getChannelsUrl,
       headers:  <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -65,6 +67,6 @@ Future<List<Channel>> fetchChannels(String token) async {
     List jsonResponse = json.decode(response.body);
     return jsonResponse.map((channel) => new Channel.fromJson(channel)).toList();
   } else {
-    throw Exception('Failed to load jobs from API');
+    throw Exception('Failed to load rooms from API, status code ${response.statusCode}');
   }
 }
