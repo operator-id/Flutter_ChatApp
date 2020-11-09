@@ -23,13 +23,10 @@ class RoundedListElement extends StatelessWidget {
         width: size.width * .8,
         child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
-
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 16),
               decoration: kPrimaryGradient,
-
               child: FlatButton(
-
                 padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                 onPressed: onTap,
                 child: Row(
@@ -48,16 +45,17 @@ class RoundedListElement extends StatelessWidget {
                         style: Theme.of(context).textTheme.button,
                       ),
                     ),
-                    Opacity(
-                      opacity: isOwner ? 1 : 0,
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.clear,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {}, // TODO api delete
-                      ),
-                    )
+                    isOwner
+                        ? GestureDetector(
+                            onTap: () {
+                              print('Calling delete api...');
+                            }, // TODO api delete
+                            child: Icon(
+                              Icons.clear,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Container(),
                   ],
                 ),
               ),

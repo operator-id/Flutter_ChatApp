@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/Screens/components/background.dart';
 import 'package:flutter_chat/Screens/components/custom_circular_indicator.dart';
@@ -9,14 +11,19 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../../message_model.dart';
 import '../../user_model.dart';
 
-
 class MainChatScreen extends StatefulWidget {
   final WebSocketChannel channel;
   final String id;
   final String channelName;
   final String username;
 
-  MainChatScreen({Key key, this.channelName, this.username, @required this.channel, this.id}) : super(key: key);
+  MainChatScreen(
+      {Key key,
+      this.channelName,
+      this.username,
+      @required this.channel,
+      this.id})
+      : super(key: key);
   @override
   _MainChatState createState() => _MainChatState();
 }
@@ -40,10 +47,10 @@ class _MainChatState extends State<MainChatScreen> {
     Message newMessage = Message(
         sender: widget.username,
         messageText: messageText,
-        timeSent: '${date.hour}:${date.minute}');
-    _messages.insert(0, newMessage);
+        timeSent: '${date.day}/${date.month} ${date.hour}:${date.minute}');
+    //_messages.insert(0, newMessage);
 
-    widget.channel.sink.add(messageText);
+    widget.channel.sink.add(newMessage);
   }
 
   _buildMessageComposer() {
@@ -86,7 +93,7 @@ class _MainChatState extends State<MainChatScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(message.sender != null  ? message.sender : '') ,
+              Text(message.sender != null ? message.sender : ''),
               Text(message.timeSent != null ? message.timeSent : ''),
             ],
           ),
@@ -98,10 +105,9 @@ class _MainChatState extends State<MainChatScreen> {
 
   @override
   void initState() {
-    print('room owner'' \nroom id ${widget.id}');
-    _sendMessage(widget.id);
+    print('room owner' ' \nroom id ${widget.id}');
+    widget.channel.sink.add(widget.id);
     super.initState();
-
   }
 
   @override
@@ -124,18 +130,33 @@ class _MainChatState extends State<MainChatScreen> {
                     stream: widget.channel.stream,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                      print('Data length: ${snapshot.data.length}');
+//                        List jsonResponse = json.decode(response.body);
+//                        return jsonResponse.map((channel) => new Channel.fromJson(channel)).toList();
+                        List jsonResponse = json.decode(snapshot.data);
+                        if (jsonResponse != null) {
+                        var messages = jsonResponse
+                            .map((message) => new Message.fromJson(message))
+                            .toList();
 
-                        return  ListView.builder(
+                        print('Message list length: ${messages.length}');
 
-                            reverse: true,
-                            itemCount: snapshot.data.length,
+                          return ListView.builder(
+                              reverse: true,
+                              itemCount: messages.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                //final Message message = new Message(messageText: snapshot.data);
+                                bool isMe =
+                                    messages[index].sender == widget.username;
 
-                            itemBuilder: (BuildContext context, int index) {
-                              final Message message = new Message(messageText: snapshot.data);
-                              //bool isMe = message.sender.id == currentUser.id;
-                              return _buildMessage(message, false);
-                            });
+                                return _buildMessage(messages[index], isMe);
+                              });
+                        } else {
+                          return Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                                'Wow, such empty! Be the first one to type a message'),
+                          );
+                        }
                       } else {
                         return CustomCircularIndicator();
                       }

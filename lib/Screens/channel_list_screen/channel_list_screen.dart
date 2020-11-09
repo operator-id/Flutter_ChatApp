@@ -22,16 +22,17 @@ class ChannelScreenArguments {
 }
 
 class ChannelListScreen extends StatefulWidget {
-
   static const routeName = '/channel';
-  ChannelListScreen({Key key,}) : super(key: key);
+  ChannelListScreen({
+    Key key,
+  }) : super(key: key);
 
   @override
   _ChannelListScreenState createState() => _ChannelListScreenState();
 }
 
 class _ChannelListScreenState extends State<ChannelListScreen> {
-  String _username =''; //TODO init state
+  String _username = ''; //TODO init state
   final _addChannelController = TextEditingController();
   bool _isVisible = false;
   @override
@@ -50,13 +51,18 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
 
   ListView _channelListView(data, String username) {
     return ListView.separated(
-        physics: BouncingScrollPhysics(),
-        scrollDirection: Axis.vertical,
-        itemCount: data.length,
-        padding: EdgeInsets.only(bottom: 30,),
-        itemBuilder: (context, index) {
-          {
-            return RoundedListElement(text: data[index].name, isOwner: (username == data[index].owner), onTap: (){
+      physics: BouncingScrollPhysics(),
+      scrollDirection: Axis.vertical,
+      itemCount: data.length,
+      padding: EdgeInsets.only(
+        bottom: 30,
+      ),
+      itemBuilder: (context, index) {
+        {
+          return RoundedListElement(
+            text: data[index].name,
+            isOwner: (username == data[index].owner),
+            onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -64,20 +70,25 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
                     return MainChatScreen(
                       username: username,
                       channelName: data[index].name,
-                      id:data[index].id,
-                      channel: IOWebSocketChannel.connect('ws://172.104.202.219:8080/room'),
+                      id: data[index].id,
+                      channel: IOWebSocketChannel.connect(
+                          'ws://172.104.202.219:8080/room'),
                     );
                   },
                 ),
               );
-            },);
-              //_tile(data[index].name, username);
-          }
-        }, separatorBuilder: (BuildContext context, int index) {
-          return SizedBox(height: 10,);
-    },);
+            },
+          );
+          //_tile(data[index].name, username);
+        }
+      },
+      separatorBuilder: (BuildContext context, int index) {
+        return SizedBox(
+          height: 10,
+        );
+      },
+    );
   }
-
 
   _addChannel(String channelName, String username) {
     var request = api.addChannel(channelName, username);
@@ -91,7 +102,7 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
         ModalRoute.of(context).settings.arguments;
     setState(() {
       print('setting username');
-      _username =  args.username;
+      _username = args.username;
     });
 
     Size size = MediaQuery.of(context).size;
@@ -108,16 +119,26 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 List<Channel> data = snapshot.data;
-                print('Has data. Room name: ${snapshot.data[0].name}. Room owner ${snapshot.data[0].owner}. Room id ${snapshot.data[0].id}.');
-                return _channelListView(data, args.username);
+                if (data != null) {
+                  print(
+                      'Has data. Room name: ${snapshot.data[0].name}. Room owner ${snapshot.data[0].owner}. Room id ${snapshot.data[0].id}.');
+                  return _channelListView(data, args.username);
+                } else {
+                  return Container(
+                    alignment: Alignment.center,
+                    child:
+                        Text('Wow, such empty! Be the first to create a room.'),
+                  );
+                }
               } else if (snapshot.hasError) {
                 return Text("${snapshot.error}");
+              } else {
+                return CustomCircularIndicator();
               }
-              return CustomCircularIndicator();
             },
           )),
-          AnimatedOpacity(
-            duration: Duration(milliseconds: 500),
+          _isVisible? AnimatedOpacity(
+            duration: Duration(milliseconds: 5000),
 
             opacity: _isVisible ? 1.0 : 0.0,
             //opacity: .5,
@@ -139,7 +160,8 @@ class _ChannelListScreenState extends State<ChannelListScreen> {
                 ),
               ]),
             ),
-          ),
+          )
+          : Container(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
